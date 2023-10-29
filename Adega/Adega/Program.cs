@@ -73,7 +73,7 @@ namespace Adega
             int quantidadeEstoque = int.Parse(Console.ReadLine());
 
             // chamando a procedure para inserir um novo vinho
-            InserirVinho(connection, nomeVinho, valorGarrafa, paisOrigem, dataFabricacao, quantidadeEstoque);
+            InserirNovoVinho(connection, nomeVinho, valorGarrafa, paisOrigem, dataFabricacao, quantidadeEstoque);
 
             Console.WriteLine("Vinho Inserido com Sucesso");
         }
@@ -117,6 +117,22 @@ namespace Adega
             Console.WriteLine("Vinho Excluido com Sucesso");
         }
 
-       
+       // funcoes para chamar as procedures
+       static void InserirNovoVinho(SqlConnection connection, string nome, decimal valor, string paisOrigem, DateTime Fabricacao, int quantidadeEstoque)
+        {
+            using (SqlCommand command = new SqlCommand("InserirVinho", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                // configurando os parametros da procedure
+                command.Parameters.Add(new SqlParameter("@nomeVinho", SqlDbType.NVarChar, 255)).Value = nome;
+                command.Parameters.Add(new SqlParameter("@valorGarrafa", SqlDbType.Decimal)).Value = valor;
+                command.Parameters.Add(new SqlParameter("paisOrigem", SqlDbType.NVarChar, 255)).Value = paisOrigem;
+                command.Parameters.Add(new SqlParameter("dataFabricacao", SqlDbType.DateTime)).Value = dataFabricacao;
+                command.Parameters.Add(new SqlParameter("@quantidadeEstoque", SqlDbType.Int)).Value = quantidadeEstoque;
+
+                command.ExecuteNonQuery();
+            }
+        }
     }
 }
