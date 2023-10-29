@@ -8,7 +8,7 @@ namespace Adega
     {
         static void Main()
         {
-            string connectionString = "Server=DANRLEI\\MSSQLSERVER01;Database=ADEGA;User Id=DANRLEI";
+            string connectionString = "Server=DANRLEI\\MSSQLSERVER01;Database=ADEGA;User Id=danrl";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -112,7 +112,7 @@ namespace Adega
             Console.Write("Codigo do Vinho: ");
             int vinhoId = int.Parse(Console.ReadLine());
 
-            ExcluirVinho(connection, vinhoId);
+            // ExcluirVinho(connection, vinhoId);
 
             Console.WriteLine("Vinho Excluido com Sucesso");
         }
@@ -128,11 +128,52 @@ namespace Adega
                 command.Parameters.Add(new SqlParameter("@nomeVinho", SqlDbType.NVarChar, 255)).Value = nome;
                 command.Parameters.Add(new SqlParameter("@valorGarrafa", SqlDbType.Decimal)).Value = valor;
                 command.Parameters.Add(new SqlParameter("paisOrigem", SqlDbType.NVarChar, 255)).Value = paisOrigem;
-                command.Parameters.Add(new SqlParameter("dataFabricacao", SqlDbType.DateTime)).Value = dataFabricacao;
+                // command.Parameters.Add(new SqlParameter("dataFabricacao", SqlDbType.DateTime)).Value = dataFabricacao;
                 command.Parameters.Add(new SqlParameter("@quantidadeEstoque", SqlDbType.Int)).Value = quantidadeEstoque;
 
                 command.ExecuteNonQuery();
             }
         }
+
+        static void AtualizarVinho(SqlConnection connection, int vinhoId, decimal novoValor, int novaQuantidade)
+        {
+            using (SqlCommand command = new SqlCommand("AtualizarVinho", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                command.Parameters.Add(new SqlParameter("@vinhoId", SqlDbType.Int)).Value = vinhoId;
+                command.Parameters.Add(new SqlParameter("@NovoValorGarrafa", SqlDbType.Decimal)).Value = novoValor;
+                command.Parameters.Add(new SqlParameter("@NovaQuantidadeEstoque", SqlDbType.Int)).Value = novaQuantidade;
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        static void RecuperarVinho(SqlConnection connection, int vinhoId)
+        {
+            using (SqlCommand command = new SqlCommand("RecuperarVinho", connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                command.Parameters.Add(new SqlParameter("@VinhoId", SqlDbType.Int)).Value = vinhoId;
+
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int id = (int)reader["vinhoId"];
+                        string nome = reader["nomeVinho"].ToString();
+                        decimal valor = (decimal)reader["valorGarrafa"];
+                        string paisOrigem = reader["paisOrigem"].ToString();
+                        DateTime dataFabricacao = (DateTime)reader["dataFabricacao"];
+                        int quantidadeEstoque = (int)reader["quantidadeEstoque"];
+
+                        Console.WriteLine($"ID: {id}, Nome: {nome}, Valor: {valor}, Pais de Origem: {paisOrigem}, Data de Fabricacao: {dataFabricacao}, Quantidade em Estoque: {quantidadeEstoque}");
+                    }
+                }
+            } 
+        }
+
+
     }
 }
